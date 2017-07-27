@@ -11,7 +11,9 @@ app.set('views', './views');
 app.set('view engine', 'mustache');
 
 //configure body-parser
-app.use(bodyParser.urlencoded({extended:false}));
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
 
 //config public to be served statically
 app.use(express.static('public'));
@@ -23,24 +25,27 @@ app.use(session({
   saveUninitialized: true
 }));
 
-let userInfo ={'username': 'bob', 'password': 'green'}
+let userInfo = {
+  'username': 'bob',
+  'password': 'green'
+}
 
 
 //redirect to either restricted content or login page, depending on login status
-app.get('/', function(req,res){
-  if (req.session && req.session.admin){
+app.get('/', function(req, res) {
+  if (req.session && req.session.admin) {
     res.redirect('/content');
-  }else{
+  } else {
     res.redirect('/login');
   }
 });
 
-app.get('/login', function(req,res){
+app.get('/login', function(req, res) {
   res.render('login');
 });
 
-app.post('/login', function(req,res){
-  if (req.body.username === userInfo.username && req.body.password === userInfo.password){
+app.post('/login', function(req, res) {
+  if (req.body.username === userInfo.username && req.body.password === userInfo.password) {
     req.session.admin = true;
     res.redirect('/');
   }
@@ -48,24 +53,24 @@ app.post('/login', function(req,res){
 });
 
 
-var auth = function(req,res,next){
-  if (req.session && req.session.admin){
+var auth = function(req, res, next) {
+  if (req.session && req.session.admin) {
     return next();
-  }else{
+  } else {
     return res.sendStatus(401);
   }
 }
 
-app.get('/content', auth, function(req,res){
+app.get('/content', auth, function(req, res) {
   let username = req.body.username;
-  res.render('content');
+  res.render('content', {userInfo: userInfo});
 });
 
-app.post('/logout', function(req,res){
+app.post('/logout', function(req, res) {
   req.session.destroy();
   res.render('cya');
 });
 
-app.listen(3000, function(){
+app.listen(3000, function() {
   console.log("A - Ω");
 });
